@@ -1,5 +1,11 @@
 import { useRef, useEffect, useState } from 'react';
-import { drawMap, drawTowers, drawCharacters, drawProjectiles, updateGame, MAP_WIDTH, MAP_HEIGHT, TILE_SIZE, addCharacter, characters, isBuildMode, toggleBuildMode, addTower, removeTower, money, TOWER_COST } from '../game/game';
+import { drawMap } from '../game/map';
+import { drawTowers, addTower, removeTower } from '../game/towers';
+import { drawCharacters, addCharacter, characters } from '../game/characters';
+import { drawProjectiles } from '../game/projectiles';
+import { updateGame } from '../game/gameLoop';
+import { MAP_WIDTH, MAP_HEIGHT, TILE_SIZE, TOWER_COST } from '../game/constants';
+import { isBuildMode, toggleBuildMode, money } from '../game/state';
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
