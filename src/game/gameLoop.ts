@@ -1,16 +1,23 @@
-import { isBuildMode, path, addMoney } from './state';
+import { isBuildMode, path, addMoney, playerHealth, isGameOver, MAX_PLAYER_HEALTH, decreasePlayerHealth, setGameOver } from './state';
 import { characters } from './characters';
 import { towers } from './towers';
 import { projectiles } from './projectiles';
 import { TILE_SIZE } from './constants';
 
 export function updateGame(deltaTime: number) {
-    if (isBuildMode) {
+    if (isBuildMode || isGameOver) {
         return;
     }
     // Move characters
-    for (const character of characters) {
+    for (let i = characters.length - 1; i >= 0; i--) {
+        const character = characters[i];
         if (character.pathIndex >= path.length) {
+            // Character reached the end of the path
+            decreasePlayerHealth(10); // Reduce player health
+            characters.splice(i, 1); // Remove character
+            if (playerHealth <= 0) {
+                setGameOver(true);
+            }
             continue;
         }
 

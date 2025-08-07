@@ -5,7 +5,7 @@ import { drawCharacters, addCharacter, characters } from '../game/characters';
 import { drawProjectiles } from '../game/projectiles';
 import { updateGame } from '../game/gameLoop';
 import { MAP_WIDTH, MAP_HEIGHT, TILE_SIZE, TOWER_COST } from '../game/constants';
-import { isBuildMode, toggleBuildMode, money } from '../game/state';
+import { isBuildMode, toggleBuildMode, money, playerHealth, isGameOver, MAX_PLAYER_HEALTH, resetGame } from '../game/state';
 
 const Game = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -13,6 +13,8 @@ const Game = () => {
   const [characterCount, setCharacterCount] = useState(0);
   const [buildMode, setBuildMode] = useState(isBuildMode);
   const [playerMoney, setPlayerMoney] = useState(money);
+  const [currentPlayerHealth, setCurrentPlayerHealth] = useState(playerHealth);
+  const [gameOver, setGameOver] = useState(isGameOver);
   const [characterImage, setCharacterImage] = useState<HTMLImageElement | null>(null);
 
   const handleAddCharacter = () => {
@@ -45,6 +47,15 @@ const Game = () => {
     }
   };
 
+  const handleRestartGame = () => {
+    resetGame();
+    setCharacterCount(characters.length);
+    setBuildMode(isBuildMode);
+    setPlayerMoney(money);
+    setCurrentPlayerHealth(playerHealth);
+    setGameOver(isGameOver);
+  };
+
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -75,12 +86,18 @@ const Game = () => {
       updateGame(deltaTime);
       setCharacterCount(characters.length);
       setPlayerMoney(money);
+      setCurrentPlayerHealth(playerHealth);
+      setGameOver(isGameOver);
       requestAnimationFrame(gameLoop);
     };
 
+    if (isGameOver) {
+      return; // Stop the game loop if game is over
+    }
+
     requestAnimationFrame(gameLoop);
 
-  }, [buildMode, characterImage]); // Re-run effect when buildMode or characterImage changes
+  }, [buildMode, characterImage, gameOver]); // Re-run effect when buildMode, characterImage or gameOver changes
 
   return (
     <div>
@@ -91,16 +108,23 @@ const Game = () => {
         onClick={handleCanvasClick}
       />
       <div>
-        <button onClick={handleAddCharacter}>Add Character</button>
+        <button onClick={handleAddCharacter} disabled={gameOver}>Add Character</button>
         <p>Character Count: {characterCount}</p>
         <p>Money: {playerMoney}</p>
+        <p>Health: {currentPlayerHealth} / {MAX_PLAYER_HEALTH}</p>
       </div>
       <div>
-        <button onClick={handleToggleBuildMode}>
+        <button onClick={handleToggleBuildMode} disabled={gameOver}>
           {buildMode ? 'Exit Build Mode' : 'Enter Build Mode'}
         </button>
         {buildMode && <p>Click to add tower (Cost: {TOWER_COST}), Shift+Click to remove tower</p>}
       </div>
+      {gameOver && (
+        <div style={{ color: 'red', fontSize: '2em', marginTop: '20px' }}>
+          GAME OVER!
+          <button onClick={handleRestartGame}>Restart Game</button>
+        </div>
+      )}
     </div>
   );
 };
