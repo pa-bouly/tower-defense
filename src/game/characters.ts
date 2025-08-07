@@ -4,8 +4,18 @@ import { path } from './state';
 
 export const characters: Character[] = [];
 
-export function addCharacter() {
+export function addCharacter(enemySpritesheet: HTMLImageElement | null) {
     const startPoint = path[0];
+    let frameWidth = TILE_SIZE;
+    let frameHeight = TILE_SIZE;
+    let totalFrames = 1;
+
+    if (enemySpritesheet) {
+        frameHeight = enemySpritesheet.height; // Assuming single row spritesheet
+        totalFrames = enemySpritesheet.width / frameHeight; // Assuming frames are square and TILE_SIZE
+        frameWidth = frameHeight; // Each frame is square, same as height
+    }
+
     characters.push({
         x: startPoint.x * TILE_SIZE,
         y: startPoint.y * TILE_SIZE,
@@ -16,13 +26,30 @@ export function addCharacter() {
         pathIndex: 1,
         health: 100,
         maxHealth: 100,
+        currentFrame: 0,
+        frameX: 0,
+        frameY: 0,
+        animationSpeed: 100, // milliseconds per frame
+        lastFrameTime: 0,
+        frameWidth: frameWidth,
+        frameHeight: frameHeight,
+        totalFrames: totalFrames,
     });
 }
 
-export function drawCharacters(context: CanvasRenderingContext2D, characterImage: HTMLImageElement | null) {
+export function drawCharacters(context: CanvasRenderingContext2D, enemySpritesheet: HTMLImageElement | null) {
   for (const character of characters) {
-    if (characterImage) {
-      context.drawImage(characterImage, character.x, character.y, character.width, character.height);
+    if (enemySpritesheet) {
+      const sx = character.currentFrame * character.frameWidth;
+      const sy = 0; // Assuming single row spritesheet
+
+      context.drawImage(
+        enemySpritesheet, // Image source
+        sx, sy, // Source x, y
+        character.frameWidth, character.frameHeight, // Source width, height
+        character.x, character.y, // Destination x, y
+        character.width, character.height // Destination width, height
+      );
     } else {
       // Fallback to drawing shapes if image not loaded
       // Draw body
@@ -55,4 +82,14 @@ export function drawCharacters(context: CanvasRenderingContext2D, characterImage
     context.strokeStyle = '#000';
     context.strokeRect(healthBarX, healthBarY, healthBarWidth, healthBarHeight);
   }
+}
+
+export function updateCharacterAnimation(deltaTime: number) {
+    const now = Date.now();
+    for (const character of characters) {
+        if (now - character.lastFrameTime > character.animationSpeed) {
+            character.currentFrame = (character.currentFrame + 1) % character.totalFrames;
+            character.lastFrameTime = now;
+        }
+    }
 }

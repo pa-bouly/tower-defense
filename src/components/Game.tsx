@@ -16,9 +16,12 @@ const Game = () => {
   const [currentPlayerHealth, setCurrentPlayerHealth] = useState(playerHealth);
   const [gameOver, setGameOver] = useState(isGameOver);
   const [characterImage, setCharacterImage] = useState<HTMLImageElement | null>(null);
+  const [grassImage, setGrassImage] = useState<HTMLImageElement | null>(null);
+  const [pathImage, setPathImage] = useState<HTMLImageElement | null>(null);
+  const [enemySpritesheet, setEnemySpritesheet] = useState<HTMLImageElement | null>(null);
 
   const handleAddCharacter = () => {
-    addCharacter();
+    addCharacter(enemySpritesheet);
     setCharacterCount(characters.length);
   };
 
@@ -64,10 +67,31 @@ const Game = () => {
     if (!context) return;
 
     // Load character image
-    const img = new Image();
-    img.src = '/character.png'; // Assuming character.png is in the public folder
-    img.onload = () => {
-      setCharacterImage(img);
+    const characterImg = new Image();
+    characterImg.src = '/character.png';
+    characterImg.onload = () => {
+      setCharacterImage(characterImg);
+    };
+
+    // Load grass image
+    const grassImg = new Image();
+    grassImg.src = '/grass.png';
+    grassImg.onload = () => {
+      setGrassImage(grassImg);
+    };
+
+    // Load path image
+    const pathImg = new Image();
+    pathImg.src = '/path.png';
+    pathImg.onload = () => {
+      setPathImage(pathImg);
+    };
+
+    // Load enemy spritesheet
+    const enemySheet = new Image();
+    enemySheet.src = '/enemy_spritesheet.png';
+    enemySheet.onload = () => {
+      setEnemySpritesheet(enemySheet);
     };
 
     const gameLoop = (timestamp: number) => {
@@ -75,12 +99,14 @@ const Game = () => {
       lastTimeRef.current = timestamp;
 
       context.clearRect(0, 0, canvas.width, canvas.height);
-      drawMap(context);
+      drawMap(context, grassImage, pathImage);
       drawTowers(context);
-      if (characterImage) {
+      if (enemySpritesheet) {
+        drawCharacters(context, enemySpritesheet);
+      } else if (characterImage) {
         drawCharacters(context, characterImage);
       } else {
-        drawCharacters(context, null); // Draw placeholder if image not loaded
+        drawCharacters(context, null); // Draw placeholder if no image loaded
       }
       drawProjectiles(context);
       updateGame(deltaTime);

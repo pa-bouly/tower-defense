@@ -19,6 +19,14 @@ export interface Character {
   pathIndex: number;
   health: number;
   maxHealth: number;
+  currentFrame: number;
+  frameX: number;
+  frameY: number;
+  animationSpeed: number; // milliseconds per frame
+  lastFrameTime: number;
+  frameWidth: number;
+  frameHeight: number;
+  totalFrames: number;
 }
 
 export interface Projectile {

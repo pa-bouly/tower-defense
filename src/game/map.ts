@@ -16,11 +16,29 @@ export const map = [
   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 ];
 
-export function drawMap(context: CanvasRenderingContext2D) {
+export function drawMap(context: CanvasRenderingContext2D, grassImage: HTMLImageElement | null, pathImage: HTMLImageElement | null) {
   for (let y = 0; y < MAP_HEIGHT; y++) {
     for (let x = 0; x < MAP_WIDTH; x++) {
-      context.fillStyle = map[y][x] === 1 ? '#a9a9a9' : '#3cb371';
-      context.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+      if (map[y][x] === 1) {
+        // Path image
+        if (pathImage) {
+          context.drawImage(pathImage, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        } else {
+          context.fillStyle = '#8B4513'; // Fallback color
+          context.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+      } else {
+        // Grass image
+        if (grassImage) {
+          context.drawImage(grassImage, x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        } else {
+          const gradient = context.createLinearGradient(x * TILE_SIZE, y * TILE_SIZE, x * TILE_SIZE, (y + 1) * TILE_SIZE);
+          gradient.addColorStop(0, '#32CD32'); // LimeGreen
+          gradient.addColorStop(1, '#228B22'); // ForestGreen
+          context.fillStyle = gradient; // Fallback gradient
+          context.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE);
+        }
+      }
     }
   }
   if (isBuildMode) {

@@ -1,5 +1,5 @@
 import { isBuildMode, path, addMoney, playerHealth, isGameOver, MAX_PLAYER_HEALTH, decreasePlayerHealth, setGameOver } from './state';
-import { characters } from './characters';
+import { characters, updateCharacterAnimation } from './characters';
 import { towers } from './towers';
 import { projectiles } from './projectiles';
 import { TILE_SIZE } from './constants';
@@ -8,6 +8,7 @@ export function updateGame(deltaTime: number) {
     if (isBuildMode || isGameOver) {
         return;
     }
+    updateCharacterAnimation(deltaTime);
     // Move characters
     for (let i = characters.length - 1; i >= 0; i--) {
         const character = characters[i];
